@@ -1,6 +1,6 @@
 {
-  "name": "blog-coding",
-  "version": "0.0.0",
+  "name": "so-easy",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
