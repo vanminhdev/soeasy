@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkso_easy=self.webpackChunkso_easy||[]).push([[1903],{1912:s=>{s.exports=JSON.parse('{"blogBasePath":"/soeasy/blog","blogTitle":"Blog","authorsListPath":"/soeasy/blog/authors"}')}}]);
