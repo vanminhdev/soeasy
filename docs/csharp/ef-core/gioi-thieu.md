@@ -1,1 +1,0 @@
-# Giới thiệu về EF Core

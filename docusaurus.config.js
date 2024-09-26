@@ -94,6 +94,7 @@ const config = {
             position: 'left',
           },
           { to: '/blog', label: 'Blog', position: 'left' },
+          { to: '/blog', label: 'Blog', position: 'left' },
           // {
           //   href: 'https://github.com/facebook/docusaurus',
           //   label: 'GitHub',
@@ -149,6 +150,11 @@ const config = {
       prism: {
         theme: prismThemes.github,
         darkTheme: prismThemes.dracula,
+        additionalLanguages: ['csharp'],
+
+      },
+      codeBlock: {
+        copy: true,
       },
     }),
 };
