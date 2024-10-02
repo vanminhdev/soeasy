@@ -16,39 +16,44 @@ sidebar_position: 1
 
 `BeginTransaction()` là một phương thức quản lý các giao dịch mạnh mẽ trong EF-Core, cho phép quản lý giao dịch một cách đơn giản. `DbContext.Database.BeginTransaction()` sẽ tự động quản lý việc bắt đầu, `transaction.Commit()` xác nhận các thay đổi giao dịch tùy thuộc vào kết quả của các thao tác trong khối lệnh của nó.
 
-### Cách sử dụng phương thức `BeginTransaction()`
+### Cách sử dụng phương thức `BeginTransaction()` trong EF Core
 ```csharp title="C#"
 using System;
 using System.Data;
 using Microsoft.EntityFrameworkCore;
 
-using var context = new SchoolDbContext();
-using var transaction = context.Database.BeginTransaction();
-
-try
+class Program
 {
-    var class = context.Classes.Add(new Class 
-    { 
-        Name = "12A", 
-        Grade = 12, 
-        Code = "12A01" 
-    }).Entity;
-    // Lưu thay đổi vào cơ sở dữ liệu
-    context.SaveChanges();
-    ontext.Students.Add(new Student 
-    { 
-        Name = "Nguyễn Văn A", 
-        Age = 20, 
-        Code = "12523A",
-        ClassId = class.Id
-    });
-    // Cam kết transaction nếu tất cả các thao tác đều thành công
-    transaction.Commit();
-}
-catch (Exception)
-{
-     // Transaction sẽ tự động bị hủy bỏ khi Exception 
-     Console.WriteLine("Transaction failed: " + ex.Message);
+    static void Main()
+    {
+        using var context = new SchoolDbContext();
+        using var transaction = context.Database.BeginTransaction();
+        try
+        {
+            var class = context.Classes.Add(new Class 
+            { 
+                Name = "12A", 
+                Grade = 12, 
+                Code = "12A01" 
+            }).Entity;
+            // Lưu thay đổi vào cơ sở dữ liệu
+            context.SaveChanges();
+            ontext.Students.Add(new Student 
+            { 
+                Name = "Nguyễn Văn A", 
+                Age = 20, 
+                Code = "12523A",
+                ClassId = class.Id
+            });
+            // Cam kết transaction nếu tất cả các thao tác đều thành công
+            transaction.Commit();
+        }
+        catch (Exception)
+        {
+            // Transaction sẽ tự động bị hủy bỏ khi Exception 
+            Console.WriteLine("Transaction failed: " + ex.Message);
+        }
+    }
 }
 ```
 _Mã sau khi biên dịch sang query SQL:_
