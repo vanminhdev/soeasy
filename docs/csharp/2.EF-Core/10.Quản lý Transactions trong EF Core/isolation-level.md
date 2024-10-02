@@ -15,8 +15,8 @@ Dưới đây là một số mức độ cô lập phổ biến:
 - **Read Uncommitted**: Transaction có thể đọc dữ liệu chưa được commit(cam kết) từ các Transaction khác, có thể gây ra hiện tượng "dirty read".
 - **Read Committed**: Mặc định của SQL Server. Transaction chỉ có thể đọc dữ liệu đã được commit.
 - **Repeatable Read**: Đảm bảo rằng dữ liệu đã đọc sẽ không bị thay đổi bởi các Transaction khác trong suốt thời gian Transaction này đang hoạt động.
-- **Serializable**: Mức độ cô lập cao nhất, ngăn không cho các Transaction khác đọc hoặc ghi dữ liệu mà Transaction này đang làm việc.
 - **Snapshot**: : Đọc dữ liệu nhất quán từ thời điểm giao dịch bắt đầu, tránh "non-repeatable read" và "phantom read".
+- **Serializable**: Mức độ cô lập cao nhất, ngăn không cho các Transaction khác đọc hoặc ghi dữ liệu mà Transaction này đang làm việc.
 
 ## Sử dụng Transaction và Isolation Level trong EF Core
 
@@ -237,8 +237,9 @@ SQL Server cung cấp bốn mức độ cô lập chính: **Read Uncommitted**, 
 | **Read Uncommitted**     | Có             | Có                      | Có               | Không khóa bản ghi nào      | Tốt nhất      | Dùng cho các truy vấn không yêu cầu dữ liệu chính xác tuyệt đối, hiệu suất là ưu tiên. |
 | **Read Committed**       | Không          | Có                      | Có               | Khóa các bản ghi hiện tại trong suốt thời gian đọc | Tốt          | Sử dụng phổ biến cho các ứng dụng, cân bằng giữa tính toàn vẹn dữ liệu và hiệu suất. |
 | **Repeatable Read**      | Không          | Không                   | Có               | Khóa các bản ghi đã đọc trong toàn bộ Transaction | Trung bình   | Dùng khi cần dữ liệu không thay đổi trong suốt Transaction nhưng không cần ngăn chặn việc thêm bản ghi mới. |
-| **Serializable**         | Không          | Không                   | Không            | Khóa toàn bộ phạm vi dữ liệu được truy vấn     | Kém nhất     | Dùng cho các tình huống đòi hỏi tính toàn vẹn dữ liệu tuyệt đối, ngăn cả thay đổi và thêm mới. |
 | **Snapshot**         | Không          | Không                   | Không            | Phiên bản hóa (versioning)     | Trung bình đến cao    | Hệ thống đọc nhiều, ghi ít. |
+| **Serializable**         | Không          | Không                   | Không            | Khóa toàn bộ phạm vi dữ liệu được truy vấn     | Kém nhất     | Dùng cho các tình huống đòi hỏi tính toàn vẹn dữ liệu tuyệt đối, ngăn cả thay đổi và thêm mới. |
+
 
 
 ### Các vấn đề xảy ra trong quá trình truy cập đồng thời khi các transaction thực hiện thao tác đọc và ghi dữ liệu:
@@ -258,12 +259,14 @@ SQL Server cung cấp bốn mức độ cô lập chính: **Read Uncommitted**, 
 - **Khóa (Lock)**: Khóa các bản ghi đã đọc trong toàn bộ transaction, ngăn cản các thay đổi nhưng cho phép thêm bản ghi mới.
 - **Đồng thời (Concurrency)**: Trung bình do transaction cần khóa bản ghi cho đến khi nó hoàn tất. Điều này có thể dẫn đến việc các giao dịch khác phải chờ đợi nếu chúng muốn ghi vào cùng dữ liệu.
 
-#### 4. **Serializable**:
+#### 4. **Snapshot**:
+- **Hiện tượng (Event)**: Ngăn tất cả các hiện tượng không mong muốn: **Dirty Read**, **Non-Repeatable Read**, và **Phantom Read**(Mặc dù transaction có thể thay đổi dữ liệu, nhưng những thay đổi này sẽ không ảnh hưởng đến các giao dịch đang chạy khác).
+- **Khóa (Lock)**: Không sử dụng các khóa truyền thống. Thay vào đó, nó sử dụng cơ chế phiên bản dữ liệu (versioning). Mỗi giao dịch sẽ đọc dữ liệu tại thời điểm nó bắt đầu, không bị ảnh hưởng bởi các thay đổi được thực hiện bởi các giao dịch khác sau đó.
+- **Đồng thời (Concurrency)**: Cao do không có khóa bản ghi trực tiếp, các giao dịch có thể đọc và ghi đồng thời mà không chặn nhau. Tuy nhiên, snapshot yêu cầu thêm bộ nhớ để lưu trữ các phiên bản dữ liệu trước đó, và nếu dữ liệu thay đổi quá nhiều, nó có thể gây ra tăng chi phí bộ nhớ
+
+#### 5. **Serializable**:
 - **Hiện tượng (Event)**: Ngăn tất cả các hiện tượng không mong muốn: **Dirty Read**, **Non-Repeatable Read**, và **Phantom Read**.
 - **Khóa (Lock)**: Khóa phạm vi dữ liệu đã truy vấn, không cho phép thay đổi hoặc thêm bản ghi trong phạm vi.
 - **Đồng thời (Concurrency)**: Thấp nhất do các transactions có thể bị chặn hoặc bị buộc phải đợi nhau lâu hơn so với các mức cô lập khác. Điều này làm giảm hiệu suất hệ thống và dễ dẫn đến deadlock.
 
-#### 6. **Snapshot**:
-- **Hiện tượng (Event)**: Ngăn tất cả các hiện tượng không mong muốn: **Dirty Read**, **Non-Repeatable Read**, và **Phantom Read**(Mặc dù transaction có thể thay đổi dữ liệu, nhưng những thay đổi này sẽ không ảnh hưởng đến các giao dịch đang chạy khác).
-- **Khóa (Lock)**: Không sử dụng các khóa truyền thống. Thay vào đó, nó sử dụng cơ chế phiên bản dữ liệu (versioning). Mỗi giao dịch sẽ đọc dữ liệu tại thời điểm nó bắt đầu, không bị ảnh hưởng bởi các thay đổi được thực hiện bởi các giao dịch khác sau đó.
-- **Đồng thời (Concurrency)**: Cao do không có khóa bản ghi trực tiếp, các giao dịch có thể đọc và ghi đồng thời mà không chặn nhau. Tuy nhiên, snapshot yêu cầu thêm bộ nhớ để lưu trữ các phiên bản dữ liệu trước đó, và nếu dữ liệu thay đổi quá nhiều, nó có thể gây ra tăng chi phí bộ nhớ
+
