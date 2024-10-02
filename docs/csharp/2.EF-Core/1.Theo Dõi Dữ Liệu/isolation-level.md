@@ -16,7 +16,6 @@ Dưới đây là một số mức độ cô lập phổ biến:
 - **Read Committed**: Mặc định của SQL Server. Transaction chỉ có thể đọc dữ liệu đã được commit.
 - **Repeatable Read**: Đảm bảo rằng dữ liệu đã đọc sẽ không bị thay đổi bởi các Transaction khác trong suốt thời gian Transaction này đang hoạt động.
 - **Serializable**: Mức độ cô lập cao nhất, ngăn không cho các Transaction khác đọc hoặc ghi dữ liệu mà Transaction này đang làm việc.
-- **Snapshot**: Transaction đọc một ảnh chụp nhanh của dữ liệu tại thời điểm Transaction bắt đầu, ngăn chặn việc "dirty read" và "phantom read".
 ## So sánh các mức độ cô lập trong SQL Server
 
 SQL Server cung cấp bốn mức độ cô lập chính: **Read Uncommitted**, **Read Committed**, **Repeatable Read**, và **Serializable**. Mỗi mức cô lập khác nhau về khả năng ngăn chặn các hiện tượng không mong muốn như **Dirty Read**, **Non-Repeatable Read**, và **Phantom Read**. Dưới đây là bảng so sánh chi tiết:
