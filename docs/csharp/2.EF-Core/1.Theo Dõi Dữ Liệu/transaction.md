@@ -27,14 +27,21 @@ using var transaction = context.Database.BeginTransaction();
 
 try
 {
-    context.Students.Add(new Student 
+    var class = context.Classes.Add(new Class 
+    { 
+        Name = "12A", 
+        Grade = 12, 
+        Code = "12A01" 
+    }).Entity;
+    // Lưu thay đổi vào cơ sở dữ liệu
+    context.SaveChanges();
+    ontext.Students.Add(new Student 
     { 
         Name = "Nguyễn Văn A", 
         Age = 20, 
-        Code = "12523A" 
+        Code = "12523A",
+        ClassId = class.Id
     });
-    // Lưu thay đổi vào cơ sở dữ liệu
-    context.SaveChanges();
     // Cam kết transaction nếu tất cả các thao tác đều thành công
     transaction.Commit();
 }
@@ -48,8 +55,14 @@ _Mã sau khi biên dịch sang query SQL:_
 ```sql title="SQL"
 BEGIN TRANSACTION;
 
-INSERT INTO Students (Name, Age, Code) 
-VALUES (N'Nguyễn Văn A', 20, '12523A');
+INSERT INTO Classes (Name, Grade, Code) 
+VALUES (N'12A', 12, '12A01');
+
+-- Lấy giá trị của ClassId vừa được chèn
+DECLARE @ClassId INT = SCOPE_IDENTITY();
+
+INSERT INTO Students (Name, Age, Code, ClassId) 
+VALUES (N'Nguyễn Văn A', 20, '12523A', @ClassId);
 
 COMMIT;
 ```
